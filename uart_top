@@ -1,0 +1,40 @@
+module uart_top (
+    input clk,rst,start,rx,
+    input parity_enable,parity_type,    
+    input [7:0] tx_data,
+    output [7:0] rx_data,
+    output tx,parity_error,
+    output tx_busy,rx_done
+    
+);
+parameter CLK_PER_BIT = 16;
+wire tx_internal;
+
+uarttrans t1(
+    .clk(clk),
+    .rst(rst),
+    .start(start),
+    .tx_data(tx_data),
+    .tx(tx_internal),
+    .tx_busy(tx_busy),
+    .parity_enable(parity_enable),
+    .parity_type(parity_type)
+    
+);
+
+
+uartrece r1(
+    .clk(clk),
+    .rst(rst),
+    .rx(tx_internal),  
+    .rx_data(rx_data),
+    .rx_done(rx_done),
+    .parity_enable(parity_enable),
+    .parity_type(parity_type),
+    .parity_error(parity_error)
+    
+);
+assign tx=tx_internal;
+
+
+endmodule
