@@ -1,0 +1,45 @@
+module uart_tb;
+reg clk,rst,start,parity_enable,parity_type;
+wire tx,tx_busy,rx_done,parity_error,rx;
+reg [7:0]tx_data;
+wire [7:0]rx_data;
+uart_top uut (
+        .clk(clk),
+        .rst(rst),
+        .start(start),
+        .rx(rx), 
+        .parity_enable(parity_enable),
+        .parity_type(parity_type),
+        .tx_data(tx_data),
+        .rx_data(rx_data),
+        .tx(tx),
+        .parity_error(parity_error),
+        .tx_busy(tx_busy),
+        .rx_done(rx_done)
+    );
+    assign rx=tx;
+    initial begin
+    clk=0;
+forever #2 clk=~clk;
+end
+ initial begin
+         rst = 1;
+        start = 0;
+        parity_enable = 1;
+        parity_type = 0; 
+        tx_data = 8'h00;
+    #8 rst = 0; 
+    #8 tx_data = 8'h5A; start=1;
+    #10 start = 0;
+    wait(rx_done);
+       #2 $display("Sent: %h | Received: %h | Parity Error: %b", tx_data, rx_data, parity_error);
+        if (rx_data == tx_data && !parity_error)
+            $display("Loopback test passed!");
+        else
+            $display("Loopback test failed!");
+     #1000 $finish;
+     end
+     endmodule 
+
+      
+       
